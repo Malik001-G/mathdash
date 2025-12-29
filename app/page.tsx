@@ -279,7 +279,7 @@ export default function ArithmeticPuzzleGame() {
                 {/* <div className="inline-flex items-center justify-center p-4 bg-primary rounded-3xl border-4 border-border shadow-lg">
                   <Brain className="w-16 h-16 text-primary-foreground" />
                 </div> */}
-                <h1 className="text-7xl font-black uppercase tracking-tighter bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                <h1 className="text-3xl lg:text-5xl font-black uppercase tracking-tighter bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                   Math Dash Challenge
                 </h1>
                 <p className="text-xl font-medium max-w-2xl mx-auto text-muted-foreground leading-relaxed">
