@@ -1260,7 +1260,7 @@ if (hasEmptyFields) {
                   <Button
                     size="lg"
                     onClick={returnToMenu}
-                    className="h-14 px-8 text-lg font-bold border-4 border-gray-900 shadow-xl bg-blue-500 hover:bg-gray-100"
+                    className="h-14 px-8 text-lg font-bold border-4 border-gray-900 shadow-xl bg-blue-500 hover:bg-blue-600 text-white"
                   >
                     🏠 Main Menu
                   </Button>
