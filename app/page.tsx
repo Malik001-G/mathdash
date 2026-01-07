@@ -1,25 +1,45 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Trophy, Clock, Home, CheckCircle2, XCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Trophy,
+  Clock,
+  Home,
+  CheckCircle2,
+  XCircle,
+  Volume2,
+  VolumeX,
+  Sparkles,
+  AlertTriangle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 type Cell = {
-  value: number | string
-  isBlank: boolean
-  correctAnswer?: number
-  id: string
-}
+  value: number | string;
+  isBlank: boolean;
+  correctAnswer?: number;
+  id: string;
+};
 
 type GridPuzzle = {
-  grid: Cell[][]
-  numberBank: number[]
-  rows: number
-  cols: number
-}
+  grid: Cell[][];
+  numberBank: number[];
+  rows: number;
+  cols: number;
+};
 
 const PUZZLES = {
   Easy: [
@@ -198,25 +218,31 @@ const PUZZLES = {
     {
       grid: [
         [
-          { value: 84, isBlank: false, id: "0-0" },
+          { value: 48, isBlank: false, id: "0-0" },
           { value: "+", isBlank: false, id: "0-1" },
-          { value: 12, isBlank: true, correctAnswer: 12, id: "0-2" },
-          { value: "=", isBlank: false, id: "0-3" },
-          { value: 96, isBlank: true, correctAnswer: 96, id: "0-4" },
+          { value: 16, isBlank: true, correctAnswer: 16, id: "0-2" },
+          { value: "-", isBlank: false, id: "0-3" },
+          { value: 8, isBlank: false, id: "0-4" },
+          { value: "=", isBlank: false, id: "0-5" },
+          { value: 56, isBlank: false, id: "0-6" },
         ],
         [
           { value: "÷", isBlank: false, id: "1-0" },
           { value: "", isBlank: false, id: "1-1" },
-          { value: "÷", isBlank: false, id: "1-2" },
+          { value: "*", isBlank: false, id: "1-2" },
           { value: "", isBlank: false, id: "1-3" },
-          { value: "÷", isBlank: false, id: "1-4" },
+          { value: "+", isBlank: false, id: "1-4" },
+          { value: "", isBlank: false, id: "1-5" },
+          { value: "", isBlank: false, id: "1-6" },
         ],
         [
-          { value: 7, isBlank: true, correctAnswer: 7, id: "2-0" },
-          { value: "*", isBlank: false, id: "2-1" },
-          { value: 4, isBlank: true, correctAnswer: 4, id: "2-2" },
-          { value: "=", isBlank: false, id: "2-3" },
-          { value: 28, isBlank: false, id: "2-4" },
+          { value: 6, isBlank: true, correctAnswer: 6, id: "2-0" },
+          { value: "-", isBlank: false, id: "2-1" },
+          { value: 2, isBlank: false, id: "2-2" },
+          { value: "*", isBlank: false, id: "2-3" },
+          { value: 5, isBlank: true, correctAnswer: 5, id: "2-4" },
+          { value: "=", isBlank: false, id: "2-5" },
+          { value: 20, isBlank: false, id: "2-6" },
         ],
         [
           { value: "=", isBlank: false, id: "3-0" },
@@ -224,41 +250,51 @@ const PUZZLES = {
           { value: "=", isBlank: false, id: "3-2" },
           { value: "", isBlank: false, id: "3-3" },
           { value: "=", isBlank: false, id: "3-4" },
+          { value: "", isBlank: false, id: "3-5" },
+          { value: "", isBlank: false, id: "3-6" },
         ],
         [
-          { value: 12, isBlank: false, id: "4-0" },
+          { value: 8, isBlank: false, id: "4-0" },
           { value: "", isBlank: false, id: "4-1" },
-          { value: 3, isBlank: true, correctAnswer: 3, id: "4-2" },
+          { value: 32, isBlank: true, correctAnswer: 32, id: "4-2" },
           { value: "", isBlank: false, id: "4-3" },
-          { value: 32, isBlank: true, correctAnswer: 32, id: "4-4" },
+          { value: 13, isBlank: true, correctAnswer: 13, id: "4-4" },
+          { value: "", isBlank: false, id: "4-5" },
+          { value: "", isBlank: false, id: "4-6" },
         ],
       ],
-      numberBank: [12, 96, 7, 4, 3, 32],
+      numberBank: [16, 8, 6, 2, 5, 32, 13],
       rows: 5,
-      cols: 5,
+      cols: 7,
     },
     {
       grid: [
         [
-          { value: 13, isBlank: true, correctAnswer: 13, id: "0-0" },
-          { value: "+", isBlank: false, id: "0-1" },
-          { value: 23, isBlank: true, correctAnswer: 23, id: "0-2" },
-          { value: "=", isBlank: false, id: "0-3" },
-          { value: 36, isBlank: false, id: "0-4" },
+          { value: 72, isBlank: false, id: "0-0" },
+          { value: "÷", isBlank: false, id: "0-1" },
+          { value: 9, isBlank: false, id: "0-2" },
+          { value: "+", isBlank: false, id: "0-3" },
+          { value: 15, isBlank: true, correctAnswer: 15, id: "0-4" },
+          { value: "=", isBlank: false, id: "0-5" },
+          { value: 23, isBlank: false, id: "0-6" },
         ],
         [
-          { value: "/", isBlank: false, id: "1-0" },
+          { value: "*", isBlank: false, id: "1-0" },
           { value: "", isBlank: false, id: "1-1" },
-          { value: "/", isBlank: false, id: "1-2" },
+          { value: "-", isBlank: false, id: "1-2" },
           { value: "", isBlank: false, id: "1-3" },
-          { value: "/", isBlank: false, id: "1-4" },
+          { value: "*", isBlank: false, id: "1-4" },
+          { value: "", isBlank: false, id: "1-5" },
+          { value: "", isBlank: false, id: "1-6" },
         ],
         [
-          { value: 13, isBlank: false, id: "2-0" },
-          { value: "*", isBlank: false, id: "2-1" },
-          { value: 23, isBlank: false, id: "2-2" },
-          { value: "=", isBlank: false, id: "2-3" },
-          { value: 299, isBlank: true, correctAnswer: 299, id: "2-4" },
+          { value: 3, isBlank: true, correctAnswer: 3, id: "2-0" },
+          { value: "+", isBlank: false, id: "2-1" },
+          { value: 7, isBlank: false, id: "2-2" },
+          { value: "-", isBlank: false, id: "2-3" },
+          { value: 4, isBlank: true, correctAnswer: 4, id: "2-4" },
+          { value: "=", isBlank: false, id: "2-5" },
+          { value: 6, isBlank: false, id: "2-6" },
         ],
         [
           { value: "=", isBlank: false, id: "3-0" },
@@ -266,377 +302,986 @@ const PUZZLES = {
           { value: "=", isBlank: false, id: "3-2" },
           { value: "", isBlank: false, id: "3-3" },
           { value: "=", isBlank: false, id: "3-4" },
+          { value: "", isBlank: false, id: "3-5" },
+          { value: "", isBlank: false, id: "3-6" },
         ],
         [
-          { value: 1, isBlank: false, id: "4-0" },
+          { value: 216, isBlank: false, id: "4-0" },
           { value: "", isBlank: false, id: "4-1" },
-          { value: 1, isBlank: false, id: "4-2" },
+          { value: 2, isBlank: false, id: "4-2" },
           { value: "", isBlank: false, id: "4-3" },
-          { value: 299, isBlank: true, correctAnswer: 299, id: "4-4" },
+          { value: 60, isBlank: true, correctAnswer: 60, id: "4-4" },
+          { value: "", isBlank: false, id: "4-5" },
+          { value: "", isBlank: false, id: "4-6" },
         ],
       ],
-      numberBank: [13, 23, 299, 299],
+      numberBank: [9, 15, 3, 7, 4, 216, 60],
       rows: 5,
-      cols: 5,
+      cols: 7,
+    },
+    {
+      grid: [
+        [
+          { value: 25, isBlank: false, id: "0-0" },
+          { value: "*", isBlank: false, id: "0-1" },
+          { value: 4, isBlank: true, correctAnswer: 4, id: "0-2" },
+          { value: "+", isBlank: false, id: "0-3" },
+          { value: 10, isBlank: true, correctAnswer: 10, id: "0-4" },
+          { value: "=", isBlank: false, id: "0-5" },
+          { value: 110, isBlank: false, id: "0-6" },
+        ],
+        [
+          { value: "-", isBlank: false, id: "1-0" },
+          { value: "", isBlank: false, id: "1-1" },
+          { value: "+", isBlank: false, id: "1-2" },
+          { value: "", isBlank: false, id: "1-3" },
+          { value: "÷", isBlank: false, id: "1-4" },
+          { value: "", isBlank: false, id: "1-5" },
+          { value: "", isBlank: false, id: "1-6" },
+        ],
+        [
+          { value: 15, isBlank: true, correctAnswer: 15, id: "2-0" },
+          { value: "*", isBlank: false, id: "2-1" },
+          { value: 3, isBlank: true, correctAnswer: 3, id: "2-2" },
+          { value: "-", isBlank: false, id: "2-3" },
+          { value: 5, isBlank: true, correctAnswer: 5, id: "2-4" },
+          { value: "=", isBlank: false, id: "2-5" },
+          { value: 40, isBlank: false, id: "2-6" },
+        ],
+        [
+          { value: "=", isBlank: false, id: "3-0" },
+          { value: "", isBlank: false, id: "3-1" },
+          { value: "=", isBlank: false, id: "3-2" },
+          { value: "", isBlank: false, id: "3-3" },
+          { value: "=", isBlank: false, id: "3-4" },
+          { value: "", isBlank: false, id: "3-5" },
+          { value: "", isBlank: false, id: "3-6" },
+        ],
+        [
+          { value: 10, isBlank: false, id: "4-0" },
+          { value: "", isBlank: false, id: "4-1" },
+          { value: 7, isBlank: true, correctAnswer: 7, id: "4-2" },
+          { value: "", isBlank: false, id: "4-3" },
+          { value: 2, isBlank: true, correctAnswer: 2, id: "4-4" },
+          { value: "", isBlank: false, id: "4-5" },
+          { value: "", isBlank: false, id: "4-6" },
+        ],
+      ],
+      numberBank: [4, 10, 15, 3, 5, 7, 2],
+      rows: 5,
+      cols: 7,
+    },
+    {
+      grid: [
+        [
+          { value: 100, isBlank: false, id: "0-0" },
+          { value: "÷", isBlank: false, id: "0-1" },
+          { value: 5, isBlank: true, correctAnswer: 5, id: "0-2" },
+          { value: "*", isBlank: false, id: "0-3" },
+          { value: 3, isBlank: true, correctAnswer: 3, id: "0-4" },
+          { value: "=", isBlank: false, id: "0-5" },
+          { value: 60, isBlank: false, id: "0-6" },
+        ],
+        [
+          { value: "+", isBlank: false, id: "1-0" },
+          { value: "", isBlank: false, id: "1-1" },
+          { value: "*", isBlank: false, id: "1-2" },
+          { value: "", isBlank: false, id: "1-3" },
+          { value: "-", isBlank: false, id: "1-4" },
+          { value: "", isBlank: false, id: "1-5" },
+          { value: "", isBlank: false, id: "1-6" },
+        ],
+        [
+          { value: 20, isBlank: true, correctAnswer: 20, id: "2-0" },
+          { value: "-", isBlank: false, id: "2-1" },
+          { value: 8, isBlank: true, correctAnswer: 8, id: "2-2" },
+          { value: "+", isBlank: false, id: "2-3" },
+          { value: 6, isBlank: true, correctAnswer: 6, id: "2-4" },
+          { value: "=", isBlank: false, id: "2-5" },
+          { value: 18, isBlank: false, id: "2-6" },
+        ],
+        [
+          { value: "=", isBlank: false, id: "3-0" },
+          { value: "", isBlank: false, id: "3-1" },
+          { value: "=", isBlank: false, id: "3-2" },
+          { value: "", isBlank: false, id: "3-3" },
+          { value: "=", isBlank: false, id: "3-4" },
+          { value: "", isBlank: false, id: "3-5" },
+          { value: "", isBlank: false, id: "3-6" },
+        ],
+        [
+          { value: 120, isBlank: false, id: "4-0" },
+          { value: "", isBlank: false, id: "4-1" },
+          { value: 40, isBlank: true, correctAnswer: 40, id: "4-2" },
+          { value: "", isBlank: false, id: "4-3" },
+          { value: -3, isBlank: true, correctAnswer: -3, id: "4-4" },
+          { value: "", isBlank: false, id: "4-5" },
+          { value: "", isBlank: false, id: "4-6" },
+        ],
+      ],
+      numberBank: [5, 3, 20, 8, 6, 40, -3],
+      rows: 5,
+      cols: 7,
+    },
+    {
+      grid: [
+        [
+          { value: 64, isBlank: false, id: "0-0" },
+          { value: "÷", isBlank: false, id: "0-1" },
+          { value: 8, isBlank: true, correctAnswer: 8, id: "0-2" },
+          { value: "-", isBlank: false, id: "0-3" },
+          { value: 2, isBlank: true, correctAnswer: 2, id: "0-4" },
+          { value: "=", isBlank: false, id: "0-5" },
+          { value: 6, isBlank: false, id: "0-6" },
+        ],
+        [
+          { value: "*", isBlank: false, id: "1-0" },
+          { value: "", isBlank: false, id: "1-1" },
+          { value: "+", isBlank: false, id: "1-2" },
+          { value: "", isBlank: false, id: "1-3" },
+          { value: "*", isBlank: false, id: "1-4" },
+          { value: "", isBlank: false, id: "1-5" },
+          { value: "", isBlank: false, id: "1-6" },
+        ],
+        [
+          { value: 2, isBlank: true, correctAnswer: 2, id: "2-0" },
+          { value: "+", isBlank: false, id: "2-1" },
+          { value: 12, isBlank: true, correctAnswer: 12, id: "2-2" },
+          { value: "÷", isBlank: false, id: "2-3" },
+          { value: 4, isBlank: true, correctAnswer: 4, id: "2-4" },
+          { value: "=", isBlank: false, id: "2-5" },
+          { value: 14, isBlank: false, id: "2-6" },
+        ],
+        [
+          { value: "=", isBlank: false, id: "3-0" },
+          { value: "", isBlank: false, id: "3-1" },
+          { value: "=", isBlank: false, id: "3-2" },
+          { value: "", isBlank: false, id: "3-3" },
+          { value: "=", isBlank: false, id: "3-4" },
+          { value: "", isBlank: false, id: "3-5" },
+          { value: "", isBlank: false, id: "3-6" },
+        ],
+        [
+          { value: 128, isBlank: false, id: "4-0" },
+          { value: "", isBlank: false, id: "4-1" },
+          { value: 20, isBlank: true, correctAnswer: 20, id: "4-2" },
+          { value: "", isBlank: false, id: "4-3" },
+          { value: 8, isBlank: true, correctAnswer: 8, id: "4-4" },
+          { value: "", isBlank: false, id: "4-5" },
+          { value: "", isBlank: false, id: "4-6" },
+        ],
+      ],
+      numberBank: [8, 2, 2, 12, 4, 20, 8],
+      rows: 5,
+      cols: 7,
     },
   ],
-}
+};
+
+const useSound = () => {
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const backgroundMusicRef = useRef<{
+    oscillators: OscillatorNode[];
+    gainNode: GainNode;
+    interval: NodeJS.Timeout;
+  } | null>(null);
+  const [isMuted, setIsMuted] = useState(false);
+
+  const getAudioContext = () => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext ||
+        (window as any).webkitAudioContext)();
+    }
+    return audioContextRef.current;
+  };
+
+  const playSound = (
+    frequency: number,
+    duration: number,
+    type: OscillatorType = "sine",
+    volume: number = 0.3
+  ) => {
+    if (isMuted) return;
+
+    const ctx = getAudioContext();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.frequency.value = frequency;
+    oscillator.type = type;
+
+    gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.01,
+      ctx.currentTime + duration
+    );
+
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + duration);
+  };
+
+  const startBackgroundMusic = () => {
+    if (isMuted || backgroundMusicRef.current) return;
+
+    const ctx = getAudioContext();
+
+    const oscillator1 = ctx.createOscillator();
+    const oscillator2 = ctx.createOscillator();
+    const oscillator3 = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    const filterNode = ctx.createBiquadFilter();
+
+    oscillator1.connect(filterNode);
+    oscillator2.connect(filterNode);
+    oscillator3.connect(filterNode);
+    filterNode.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    const chords = [
+      [261.63, 329.63, 392.0],
+      [293.66, 369.99, 440.0],
+      [246.94, 311.13, 369.99],
+      [261.63, 329.63, 392.0],
+    ];
+
+    let chordIndex = 0;
+
+    oscillator1.type = "sine";
+    oscillator2.type = "sine";
+    oscillator3.type = "triangle";
+    filterNode.type = "lowpass";
+    filterNode.frequency.value = 1500;
+
+    const setChord = (index: number) => {
+      const now = ctx.currentTime;
+      oscillator1.frequency.setValueAtTime(chords[index][0], now);
+      oscillator2.frequency.setValueAtTime(chords[index][1], now);
+      oscillator3.frequency.setValueAtTime(chords[index][2] / 2, now);
+    };
+
+    setChord(0);
+    gainNode.gain.setValueAtTime(0.06, ctx.currentTime);
+
+    const changeChord = () => {
+      chordIndex = (chordIndex + 1) % chords.length;
+      setChord(chordIndex);
+    };
+
+    const interval = setInterval(changeChord, 2000);
+    oscillator1.start();
+    oscillator2.start();
+    oscillator3.start();
+
+    backgroundMusicRef.current = {
+      oscillators: [oscillator1, oscillator2, oscillator3],
+      gainNode,
+      interval,
+    };
+  };
+
+  const stopBackgroundMusic = () => {
+    if (backgroundMusicRef.current) {
+      clearInterval(backgroundMusicRef.current.interval);
+      backgroundMusicRef.current.oscillators.forEach((osc) => {
+        try {
+          osc.stop();
+        } catch (e) {
+          // Oscillator already stopped
+        }
+      });
+      backgroundMusicRef.current = null;
+    }
+  };
+
+  const toggleMute = () => {
+    const newMutedState = !isMuted;
+    setIsMuted(newMutedState);
+
+    if (newMutedState) {
+      stopBackgroundMusic();
+    } else {
+      setTimeout(() => startBackgroundMusic(), 100);
+    }
+  };
+
+  const sounds = {
+    click: () => playSound(800, 0.1, "sine"),
+    correct: () => {
+      playSound(523, 0.1, "sine");
+      setTimeout(() => playSound(659, 0.1, "sine"), 100);
+      setTimeout(() => playSound(784, 0.2, "sine"), 200);
+    },
+    wrong: () => {
+      playSound(200, 0.3, "sawtooth");
+    },
+    success: () => {
+      playSound(523, 0.15, "sine", 0.4);
+      setTimeout(() => playSound(659, 0.15, "sine", 0.4), 150);
+      setTimeout(() => playSound(784, 0.15, "sine", 0.4), 300);
+      setTimeout(() => playSound(1047, 0.3, "sine", 0.4), 450);
+    },
+    tick: () => playSound(1000, 0.05, "square", 0.2),
+    type: () => playSound(600, 0.05, "sine", 0.15),
+  };
+
+  return {
+    sounds,
+    isMuted,
+    toggleMute,
+    startBackgroundMusic,
+    stopBackgroundMusic,
+  };
+};
 
 export default function MathGridPuzzle() {
-  const [gameState, setGameState] = useState<"menu" | "playing" | "results">("menu")
-  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Easy")
-  const [puzzleIndex, setPuzzleIndex] = useState(0)
-  const [userAnswers, setUserAnswers] = useState<Record<string, number>>({})
-  const [selectedNumber, setSelectedNumber] = useState<{ value: number; index: number } | null>(null)
-  const [selectedCell, setSelectedCell] = useState<string | null>(null)
-  const [bank, setBank] = useState<number[]>([])
-  const [verification, setVerification] = useState<Record<string, boolean>>({})
-  const [score, setScore] = useState(0)
-  const [timeLeft, setTimeLeft] = useState(180)
-  const [completedPuzzles, setCompletedPuzzles] = useState(0)
+  const [gameState, setGameState] = useState<"menu" | "playing" | "results">(
+    "menu"
+  );
+  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">(
+    "Easy"
+  );
+  const [puzzleIndex, setPuzzleIndex] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
+  const [focusedCell, setFocusedCell] = useState<string | null>(null);
+  const [verification, setVerification] = useState<Record<string, boolean>>({});
+  const [timeLeft, setTimeLeft] = useState(180);
+  const [completedPuzzles, setCompletedPuzzles] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showQuitDialog, setShowQuitDialog] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [gameEndReason, setGameEndReason] = useState<"timeUp" | "completed">(
+    "timeUp"
+  );
+  const [showEmptyWarning, setShowEmptyWarning] = useState(false);
 
-  const currentPuzzle = PUZZLES[difficulty][puzzleIndex % PUZZLES[difficulty].length]
+
+  const {
+    sounds,
+    isMuted,
+    toggleMute,
+    startBackgroundMusic,
+    stopBackgroundMusic,
+  } = useSound();
+  const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  const currentPuzzle =
+    PUZZLES[difficulty][puzzleIndex % PUZZLES[difficulty].length];
+
+  useEffect(() => {
+    if (gameState === "playing" && !isMuted) {
+      startBackgroundMusic();
+    } else {
+      stopBackgroundMusic();
+    }
+
+    return () => {
+      stopBackgroundMusic();
+    };
+  }, [gameState]);
 
   useEffect(() => {
     if (gameState === "playing") {
-      const puzzle = PUZZLES[difficulty][puzzleIndex % PUZZLES[difficulty].length]
-      // Add 2 decoy numbers
-      const decoys: number[] = []
-      while (decoys.length < 2) {
-        const randomNum = Math.floor(Math.random() * 50) + 1
-        if (!puzzle.numberBank.includes(randomNum) && !decoys.includes(randomNum)) {
-          decoys.push(randomNum)
-        }
-      }
-      setBank([...puzzle.numberBank, ...decoys].sort(() => Math.random() - 0.5))
-      setUserAnswers({})
-      setVerification({})
-      setSelectedNumber(null)
-      setSelectedCell(null)
+      setUserAnswers({});
+      setVerification({});
+      setFocusedCell(null);
+      setShowSuccess(false);
     }
-  }, [gameState, difficulty, puzzleIndex])
+  }, [gameState, difficulty, puzzleIndex]);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout
+    let timer: NodeJS.Timeout;
     if (gameState === "playing" && timeLeft > 0) {
-      timer = setInterval(() => setTimeLeft((t) => t - 1), 1000)
-    } else if (timeLeft === 0) {
-      setGameState("results")
+      timer = setInterval(() => {
+        setTimeLeft((t) => {
+          if (t <= 10 && t > 0) sounds.tick();
+          return t - 1;
+        });
+      }, 1000);
+    } else if (timeLeft === 0 && gameState === "playing") {
+      setGameEndReason("timeUp");
+      setGameState("results");
     }
-    return () => clearInterval(timer)
-  }, [gameState, timeLeft])
+    return () => clearInterval(timer);
+  }, [gameState, timeLeft, sounds]);
 
-  const handleNumberClick = (value: number, index: number) => {
-    if (selectedCell) {
-      const prevValue = userAnswers[selectedCell]
-      setUserAnswers((prev) => ({ ...prev, [selectedCell]: value }))
-      setBank((prev) => {
-        const newBank = [...prev]
-        newBank.splice(index, 1)
-        if (prevValue !== undefined) {
-          newBank.push(prevValue)
-        }
-        return newBank
-      })
-      setSelectedCell(null)
-      setSelectedNumber(null)
-    } else {
-      if (selectedNumber?.index === index) {
-        setSelectedNumber(null)
-      } else {
-        setSelectedNumber({ value, index })
-      }
+  const handleInputChange = (cellId: string, value: string) => {
+    // Allow only numbers, minus sign, and empty string
+    const sanitized = value.replace(/[^0-9-]/g, "");
+
+    // Prevent multiple minus signs
+    if (sanitized.split("-").length > 2) return;
+
+    // Prevent minus sign not at the beginning
+    if (sanitized.includes("-") && sanitized.indexOf("-") !== 0) return;
+
+    sounds.type();
+    setUserAnswers((prev) => ({ ...prev, [cellId]: sanitized }));
+
+    // Clear verification for this cell when user types
+    if (verification[cellId] !== undefined) {
+      setVerification((prev) => {
+        const newState = { ...prev };
+        delete newState[cellId];
+        return newState;
+      });
     }
-  }
+  };
 
   const handleCellClick = (cellId: string) => {
-    const existingValue = userAnswers[cellId]
+    sounds.click();
+    setFocusedCell(cellId);
+    setTimeout(() => {
+      inputRefs.current[cellId]?.focus();
+    }, 0);
+  };
 
-    if (selectedNumber) {
-      const { value, index } = selectedNumber
-      setUserAnswers((prev) => ({ ...prev, [cellId]: value }))
-      setBank((prev) => {
-        const newBank = [...prev]
-        newBank.splice(index, 1)
-        if (existingValue !== undefined) {
-          newBank.push(existingValue)
-        }
-        return newBank
-      })
-      setSelectedNumber(null)
-      setSelectedCell(null)
-    } else if (existingValue !== undefined) {
-      setUserAnswers((prev) => {
-        const newAnswers = { ...prev }
-        delete newAnswers[cellId]
-        return newAnswers
-      })
-      setBank((prev) => [...prev, existingValue])
-      setVerification((prev) => {
-        const newState = { ...prev }
-        delete newState[cellId]
-        return newState
-      })
-    } else {
-      setSelectedCell(selectedCell === cellId ? null : cellId)
+  const handleKeyDown = (cellId: string, e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      verifySolution();
     }
-  }
+  };
+const verifySolution = () => {
+  const newVerification: Record<string, boolean> = {};
+  let correctCount = 0;
+  let totalBlanks = 0;
+  let hasEmptyFields = false;
 
-  const verifySolution = () => {
-    const newVerification: Record<string, boolean> = {}
-    let correctCount = 0
-    let totalBlanks = 0
-
-    currentPuzzle.grid.forEach((row) => {
-      row.forEach((cell) => {
-        if (cell.isBlank) {
-          totalBlanks++
-          const userAnswer = userAnswers[cell.id]
-          const isCorrect = userAnswer === cell.correctAnswer
-          newVerification[cell.id] = isCorrect
-          if (isCorrect) correctCount++
+  currentPuzzle.grid.forEach((row) => {
+    row.forEach((cell) => {
+      if (cell.isBlank) {
+        totalBlanks++;
+        const userAnswer = userAnswers[cell.id];
+        
+        // Check if field is empty
+        if (!userAnswer || userAnswer.trim() === "") {
+          hasEmptyFields = true;
+          return;
         }
-      })
-    })
+        
+        const parsedAnswer = parseInt(userAnswer);
+        const isCorrect =
+          !isNaN(parsedAnswer) && parsedAnswer === cell.correctAnswer;
+        newVerification[cell.id] = isCorrect;
+        if (isCorrect) correctCount++;
+      }
+    });
+  });
 
-    setVerification(newVerification)
+// Don't allow submission if there are empty fields
+if (hasEmptyFields) {
+  sounds.wrong();
+  setShowEmptyWarning(true);
+  setTimeout(() => setShowEmptyWarning(false), 1000);
+  return;
+}
 
-    if (correctCount === totalBlanks) {
-      setScore((s) => s + 10)
-      setCompletedPuzzles((c) => c + 1)
-      setTimeout(() => {
-        if (puzzleIndex + 1 < PUZZLES[difficulty].length) {
-          setPuzzleIndex((i) => i + 1)
-        } else {
-          setGameState("results")
-        }
-      }, 2000)
-    }
+  setVerification(newVerification);
+
+  if (correctCount === totalBlanks) {
+    sounds.success();
+    setShowSuccess(true);
+    setCompletedPuzzles((c) => c + 1);
+    setTimeout(() => {
+      if (puzzleIndex + 1 < PUZZLES[difficulty].length) {
+        setPuzzleIndex((i) => i + 1);
+      } else {
+        // Completed all puzzles
+        setGameEndReason("completed");
+        setGameState("results");
+      }
+    }, 2000);
+  } else {
+    // Move to next puzzle even if answers are wrong
+    sounds.wrong();
+    setTimeout(() => {
+      if (puzzleIndex + 1 < PUZZLES[difficulty].length) {
+        setPuzzleIndex((i) => i + 1);
+      } else {
+        setGameEndReason("timeUp");
+        setGameState("results");
+      }
+    }, 1500);
   }
-
+};
   const startGame = (diff: "Easy" | "Medium" | "Hard") => {
-    setDifficulty(diff)
-    setGameState("playing")
-    setPuzzleIndex(0)
-    setScore(0)
-    setCompletedPuzzles(0)
-    setTimeLeft(diff === "Easy" ? 180 : diff === "Medium" ? 240 : 300)
-  }
+    sounds.click();
+    setDifficulty(diff);
+    setPuzzleIndex(0);
+    setCompletedPuzzles(0);
+    setTimeLeft(diff === "Easy" ? 10 : diff === "Medium" ? 80 : 120);
+    setUserAnswers({});
+    setVerification({});
+    setFocusedCell(null);
+    setShowSuccess(false);
+    setGameEndReason("timeUp");
+    setIsTransitioning(false);
+    setGameState("playing");
+  };
+  const returnToMenu = () => {
+    sounds.click();
+    setIsTransitioning(true);
+
+    // Reset all game state
+    setUserAnswers({});
+    setVerification({});
+    setFocusedCell(null);
+    setShowSuccess(false);
+    setPuzzleIndex(0);
+    setCompletedPuzzles(0);
+    setGameEndReason("timeUp");
+
+    // Short delay to ensure state is reset before transition
+    setTimeout(() => {
+      setGameState("menu");
+      setIsTransitioning(false);
+    }, 50);
+  };
+  const handleQuitGame = () => {
+    sounds.click();
+    setShowQuitDialog(true);
+  };
+
+  const confirmQuit = () => {
+    sounds.click();
+    setShowQuitDialog(false);
+    returnToMenu();
+  };
 
   return (
-    <div className="min-h-screen p-4 flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      <Card className="w-full max-w-6xl border-4 border-gray-800 bg-white shadow-2xl p-8 rounded-3xl">
+    <div className="min-h-screen p-2 md:p-4 flex items-center justify-center bg-gray-200">
+      <Card className="w-full max-w-4xl border-4 border-gray-900 bg-white shadow-2xl p-4 md:p-6 rounded-2xl relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(15)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 bg-yellow-300 rounded-full opacity-60"
+              initial={{ x: Math.random() * 100 + "%", y: -20, opacity: 0 }}
+              animate={{
+                y: "120%",
+                opacity: [0, 1, 0],
+              }}
+              transition={{
+                duration: 3 + Math.random() * 2,
+                repeat: Infinity,
+                delay: Math.random() * 3,
+              }}
+            />
+          ))}
+        </div>
+
         <AnimatePresence mode="wait">
-          {gameState === "menu" && (
+          {!isTransitioning && gameState === "menu" && (
             <motion.div
               key="menu"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="text-center space-y-12 py-12"
+              className="text-center space-y-8 py-8"
             >
-              <div className="space-y-6">
-                <h1 className="text-5xl font-black uppercase tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Math Dash 
+              <div className="space-y-4">
+             
+                <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  Math Dash
                 </h1>
-                <p className="text-xl font-medium max-w-2xl mx-auto text-gray-600">
-                  Fill in the blanks to complete all equations! Numbers work both horizontally and vertically.
+                <p className="text-base md:text-lg font-medium max-w-xl mx-auto text-gray-700 px-4">
+                  Type your answers to complete all equations! Numbers work both
+                  horizontally and vertically.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto px-4">
                 {(["Easy", "Medium", "Hard"] as const).map((level) => (
-                  <Button
+                  <motion.div
                     key={level}
-                    onClick={() => startGame(level)}
-                    className={cn(
-                      "h-32 text-3xl font-black border-4 border-gray-800 shadow-lg hover:scale-105 transition-transform",
-                      level === "Easy" && "bg-green-400 hover:bg-green-500 text-gray-900",
-                      level === "Medium" && "bg-yellow-400 hover:bg-yellow-500 text-gray-900",
-                      level === "Hard" && "bg-red-400 hover:bg-red-500 text-gray-900"
-                    )}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    <div className="flex flex-col gap-2">
-                      <span>{level}</span>
-                      <span className="text-sm font-medium opacity-70">{PUZZLES[level].length} Puzzles</span>
-                    </div>
-                  </Button>
+                    <Button
+                      onClick={() => startGame(level)}
+                      className={cn(
+                        "w-full h-24 text-2xl font-black border-4 border-gray-900 shadow-xl",
+                        level === "Easy" &&
+                          "bg-green-400 hover:bg-green-500 text-gray-900",
+                        level === "Medium" &&
+                          "bg-yellow-400 hover:bg-yellow-500 text-gray-900",
+                        level === "Hard" &&
+                          "bg-red-400 hover:bg-red-500 text-gray-900"
+                      )}
+                    >
+                      <div className="flex flex-col gap-1">
+                        <span>{level}</span>
+                        <span className="text-xs font-medium opacity-70">
+                          {PUZZLES[level].length} Puzzles
+                        </span>
+                      </div>
+                    </Button>
+                  </motion.div>
                 ))}
               </div>
             </motion.div>
           )}
 
-          {gameState === "playing" && (
+          {!isTransitioning && gameState === "playing" && (
             <motion.div
               key="playing"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="space-y-6"
+              className="space-y-4 relative"
             >
-              <div className="flex items-center justify-between border-b-4 border-gray-800 pb-4">
-                <div className="flex items-center gap-4">
-                  <div className="bg-gray-100 border-2 border-gray-800 p-2 rounded-xl flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-blue-600" />
-                    <span className={cn("text-xl font-bold", timeLeft < 30 && "text-red-600")}>
-                      {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
+  <AnimatePresence>
+  {showSuccess && (
+    <motion.div
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0, opacity: 0 }}
+      className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none"
+    >
+      <div className="bg-green-500 text-white px-8 py-4 rounded-2xl text-3xl font-black border-4 border-gray-900 shadow-2xl">
+        🎉 PERFECT! 🎉
+      </div>
+    </motion.div>
+  )}
+  {showEmptyWarning && (
+    <motion.div
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0, opacity: 0 }}
+      className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none"
+    >
+      <div className="bg-orange-500 text-white px-8 py-4 rounded-2xl text-2xl font-black border-4 border-gray-900 shadow-2xl">
+        ⚠️ Please fill all the blanks! ⚠️
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
+              <div className="flex items-center justify-between border-b-4 border-gray-900 pb-3">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <motion.div
+                    animate={timeLeft < 10 ? { scale: [1, 1.1, 1] } : {}}
+                    transition={{
+                      duration: 0.5,
+                      repeat: timeLeft < 10 ? Infinity : 0,
+                    }}
+                    className="bg-gray-100 border-2 border-gray-900 p-2 rounded-lg flex items-center gap-1.5 shadow-lg"
+                  >
+                    <Clock
+                      className={cn(
+                        "w-4 h-4",
+                        timeLeft < 30 ? "text-red-600" : "text-blue-600"
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "text-lg font-black",
+                        timeLeft < 30 && "text-red-600"
+                      )}
+                    >
+                      {Math.floor(timeLeft / 60)}:
+                      {(timeLeft % 60).toString().padStart(2, "0")}
                     </span>
+                  </motion.div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold text-gray-600 uppercase">
+                      Level
+                    </span>
+                    <span className="text-base font-black">{difficulty}</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-sm font-bold text-gray-600">Level</span>
-                    <span className="text-xl font-black">{difficulty}</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-bold text-gray-600">Puzzle</span>
-                    <span className="text-xl font-black">
-                      {puzzleIndex + 1} / {PUZZLES[difficulty].length}
+                    <span className="text-xs font-bold text-gray-600 uppercase">
+                      Puzzle
+                    </span>
+                    <span className="text-base font-black">
+                      {puzzleIndex + 1}/{PUZZLES[difficulty].length}
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                   <div className="text-right">
-                    <div className="text-sm font-bold text-gray-600">Solved</div>
-                    <div className="text-3xl font-black text-purple-600">{completedPuzzles}</div>
+                    <div className="text-xs font-bold text-gray-600">
+                      Solved
+                    </div>
+                    <motion.div
+                      key={completedPuzzles}
+                      initial={{ scale: 1.5, color: "#22c55e" }}
+                      animate={{ scale: 1, color: "#9333ea" }}
+                      className="text-2xl font-black text-purple-600"
+                    >
+                      {completedPuzzles}
+                    </motion.div>
                   </div>
+
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => setGameState("menu")}
-                    className="border-2 border-gray-800"
+                    onClick={() => {
+                      toggleMute();
+                      if (!isMuted) sounds.click();
+                    }}
+                    className="border-2 border-gray-900 w-10 h-10 bg-white hover:bg-gray-100"
                   >
-                    <Home className="w-5 h-5" />
+                    {isMuted ? (
+                      <VolumeX className="w-4 h-4" />
+                    ) : (
+                      <Volume2 className="w-4 h-4" />
+                    )}
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleQuitGame}
+                    className="border-2 border-gray-900 w-10 h-10 hover:bg-red-100"
+                  >
+                    <Home className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-4 border-gray-800 rounded-2xl p-8 overflow-x-auto">
-                <div className="inline-block min-w-full">
+              <AlertDialog
+                open={showQuitDialog}
+                onOpenChange={setShowQuitDialog}
+              >
+                <AlertDialogContent className="border-4 border-gray-900 bg-white max-w-md">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-2xl font-black flex items-center gap-2">
+                      <AlertTriangle className="w-8 h-8 text-yellow-500" />
+                      Quit Game?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-base font-medium text-gray-700">
+                      You are about to quit the game. All your progress will be
+                      lost!
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel
+                      onClick={() => sounds.click()}
+                      className="border-2 border-gray-900 text-base font-bold"
+                    >
+                      ❌ Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={confirmQuit}
+                      className="bg-red-500 hover:bg-red-600 border-2 border-gray-900 text-base font-bold"
+                    >
+                      ✓ Quit Game
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
+              <div className="bg-gradient-to-br from-blue-100 to-purple-100 border-4 border-gray-900 rounded-2xl p-2 sm:p-4 md:p-6 shadow-inner">
+                <div className="flex flex-col items-center justify-center">
                   {currentPuzzle.grid.map((row, i) => (
-                    <div key={i} className="flex items-center justify-center gap-2 mb-2">
+                    <div
+                      key={i}
+                      className="flex items-center justify-center gap-1 sm:gap-2 mb-1 sm:mb-2"
+                    >
                       {row.map((cell, j) => {
-                        if (typeof cell.value === "string" && cell.value !== "") {
+                        if (
+                          typeof cell.value === "string" &&
+                          cell.value !== ""
+                        ) {
                           return (
-                            <div key={j} className="w-16 h-16 flex items-center justify-center text-2xl font-black">
+                            <div
+                              key={j}
+                              className="w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 flex items-center justify-center text-base sm:text-lg md:text-2xl font-black"
+                            >
                               {cell.value}
                             </div>
-                          )
+                          );
                         }
 
                         if (cell.value === "") {
-                          return <div key={j} className="w-16 h-16" />
+                          return (
+                            <div
+                              key={j}
+                              className="w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14"
+                            />
+                          );
                         }
 
                         if (cell.isBlank) {
-                          const isCorrect = verification[cell.id]
-                          const hasValue = userAnswers[cell.id] !== undefined
+                          const isCorrect = verification[cell.id];
+                          const hasValue = userAnswers[cell.id]?.length > 0;
                           return (
-                            <button
+                            <motion.div
                               key={j}
+                              whileHover={{ scale: 1.05 }}
                               onClick={() => handleCellClick(cell.id)}
                               className={cn(
-                                "w-16 h-16 rounded-full border-4 flex items-center justify-center text-xl font-black transition-all relative",
-                                selectedCell === cell.id
-                                  ? "bg-yellow-200 border-yellow-500 scale-110 shadow-lg"
+                                "w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full border-2 sm:border-4 flex items-center justify-center text-sm sm:text-base md:text-xl font-black transition-all relative shadow-lg cursor-pointer",
+                                focusedCell === cell.id
+                                  ? "bg-yellow-300 border-yellow-600 scale-110 shadow-2xl"
                                   : hasValue
-                                  ? "bg-blue-100 border-blue-500"
-                                  : "bg-white border-gray-400 border-dashed hover:bg-gray-50",
-                                isCorrect === true && "border-green-500 bg-green-100",
-                                isCorrect === false && "border-red-500 bg-red-100"
+                                  ? "bg-blue-200 border-blue-600"
+                                  : "bg-white border-gray-500 border-dashed hover:bg-gray-50",
+                                isCorrect === true &&
+                                  "border-green-600 bg-green-200",
+                                isCorrect === false &&
+                                  "border-red-600 bg-red-200"
                               )}
                             >
-                              {userAnswers[cell.id] || "?"}
+                              <input
+                                ref={(el) => {
+                                  inputRefs.current[cell.id] = el;
+                                }}
+                                type="text"
+                                inputMode="numeric"
+                                value={userAnswers[cell.id] || ""}
+                                onChange={(e) =>
+                                  handleInputChange(cell.id, e.target.value)
+                                }
+                                onKeyDown={(e) => handleKeyDown(cell.id, e)}
+                                onFocus={() => setFocusedCell(cell.id)}
+                                onBlur={() => setFocusedCell(null)}
+                                className="w-full h-full bg-transparent text-center font-black outline-none"
+                                placeholder="?"
+                                maxLength={4}
+                              />
                               {isCorrect === true && (
-                                <CheckCircle2 className="absolute -top-2 -right-2 w-6 h-6 text-green-600 bg-white rounded-full" />
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 pointer-events-none"
+                                >
+                                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-green-600 bg-white rounded-full" />
+                                </motion.div>
                               )}
                               {isCorrect === false && (
-                                <XCircle className="absolute -top-2 -right-2 w-6 h-6 text-red-600 bg-white rounded-full" />
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{
+                                    scale: 1,
+                                    rotate: [0, -10, 10, -10, 0],
+                                  }}
+                                  className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 pointer-events-none"
+                                >
+                                  <XCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-red-600 bg-white rounded-full" />
+                                </motion.div>
                               )}
-                            </button>
-                          )
+                            </motion.div>
+                          );
                         }
 
                         return (
                           <div
                             key={j}
-                            className="w-16 h-16 bg-gray-200 border-2 border-gray-800 rounded-lg flex items-center justify-center text-xl font-black"
+                            className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 bg-gradient-to-br from-gray-200 to-gray-300 border-2 border-gray-900 rounded-xl flex items-center justify-center text-sm sm:text-base md:text-xl font-black shadow-md"
                           >
                             {cell.value}
                           </div>
-                        )
+                        );
                       })}
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <div className="text-center">
-                  <span className="inline-block text-sm font-black uppercase bg-blue-600 text-white px-4 py-2 rounded-full">
-                    Number Bank
-                  </span>
-                </div>
-                <div className="flex flex-wrap justify-center gap-3 p-4 bg-white border-4 border-gray-800 rounded-2xl min-h-[80px]">
-                  {bank.map((num, idx) => (
-                    <button
-                      key={`${num}-${idx}`}
-                      onClick={() => handleNumberClick(num, idx)}
-                      className={cn(
-                        "w-14 h-14 bg-blue-500 text-white text-xl font-black rounded-lg shadow-md transition-all",
-                        selectedNumber?.index === idx
-                          ? "ring-4 ring-yellow-400 scale-110"
-                          : "hover:scale-105 active:scale-95"
-                      )}
-                    >
-                      {num}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex justify-center">
-                <Button
-                  size="lg"
-                  onClick={verifySolution}
-                  className="h-16 px-12 text-2xl font-black bg-purple-600 hover:bg-purple-700 border-4 border-gray-800"
+              <div className="flex justify-center pt-2">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  Check Solution
-                </Button>
+                  <Button
+                    size="lg"
+                    onClick={verifySolution}
+                    className="h-14 px-10 text-xl font-black bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 border-4 border-gray-900 shadow-2xl"
+                  >
+                    ✓ Check Solution
+                  </Button>
+                </motion.div>
               </div>
             </motion.div>
           )}
 
-          {gameState === "results" && (
+          {!isTransitioning && gameState === "results" && (
             <motion.div
               key="results"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center space-y-12 py-16"
+              exit={{ opacity: 0, y: -20 }}
+              className="text-center space-y-8 py-12"
             >
-              <Trophy className="w-32 h-32 mx-auto text-yellow-500" />
-              <div className="space-y-4">
-                <h2 className="text-5xl font-black text-purple-600">Time's Up!</h2>
-                <p className="text-2xl">You completed {completedPuzzles} puzzles!</p>
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 10, 0], scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Trophy className="w-24 h-24 mx-auto text-yellow-500" />
+              </motion.div>
+              <div className="space-y-3">
+                {gameEndReason === "completed" ? (
+                  <>
+                    <h2 className="text-4xl font-black text-green-600">
+                      🎉 Congratulations! 🎉
+                    </h2>
+                    <p className="text-2xl font-bold">
+                      You completed all{" "}
+                      <span className="text-purple-600">
+                        {completedPuzzles}
+                      </span>{" "}
+                      puzzles in {difficulty} mode!
+                    </p>
+                    <p className="text-lg text-gray-600">
+                      Time remaining:{" "}
+                      <span className="font-black">
+                        {Math.floor(timeLeft / 60)}:
+                        {(timeLeft % 60).toString().padStart(2, "0")}
+                      </span>
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-4xl font-black text-orange-600">
+                      ⏰ Time's Up! ⏰
+                    </h2>
+                    <p className="text-2xl font-bold">
+                      You completed{" "}
+                      <span className="text-green-600">{completedPuzzles}</span>{" "}
+                      out of {PUZZLES[difficulty].length} puzzles!
+                    </p>
+                    {completedPuzzles > 0 && (
+                      <p className="text-lg text-gray-600">
+                        Great effort! Keep practicing to improve your time.
+                      </p>
+                    )}
+                  </>
+                )}
               </div>
-              <div className="flex justify-center gap-4">
-                <Button
-                  size="lg"
-                  onClick={() => setGameState("menu")}
-                  className="h-16 px-10 text-xl font-bold border-4 border-gray-800"
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  Main Menu
-                </Button>
-                <Button
-                  size="lg"
-                  onClick={() => startGame(difficulty)}
-                  className="h-16 px-10 text-xl font-bold bg-purple-600 border-4 border-gray-800"
+                  <Button
+                    size="lg"
+                    onClick={returnToMenu}
+                    className="h-14 px-8 text-lg font-bold border-4 border-gray-900 shadow-xl bg-blue-500 hover:bg-gray-100"
+                  >
+                    🏠 Main Menu
+                  </Button>
+                </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  Play Again
-                </Button>
+                  <Button
+                    size="lg"
+                    onClick={() => startGame(difficulty)}
+                    className="h-14 px-8 text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-4 border-gray-900 shadow-xl"
+                  >
+                    🔄 Play Again
+                  </Button>
+                </motion.div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </Card>
     </div>
-  )
+  );
 }
