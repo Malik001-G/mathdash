@@ -812,7 +812,7 @@ if (hasEmptyFields) {
     setDifficulty(diff);
     setPuzzleIndex(0);
     setCompletedPuzzles(0);
-    setTimeLeft(diff === "Easy" ? 10 : diff === "Medium" ? 80 : 120);
+    setTimeLeft(diff === "Easy" ? 45 : diff === "Medium" ? 60 : 90);
     setUserAnswers({});
     setVerification({});
     setFocusedCell(null);
